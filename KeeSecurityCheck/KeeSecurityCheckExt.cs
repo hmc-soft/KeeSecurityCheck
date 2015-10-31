@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace KeeSecurityCheck
 {
-    public sealed class KeeSecurityCheckExt : Plugin
+    public sealed class KeeSecurityCheckExt : Plugin, IDisposable
     {
         private IPluginHost m_host = null;
         private ToolStripSeparator m_sep = null;
@@ -48,6 +48,13 @@ namespace KeeSecurityCheck
             tsmenu.Remove(m_sep);
             tsmenu.Remove(m_menuItem);
             return;
+        }
+
+        public void Dispose()
+        {
+            m_form.Dispose();
+            m_menuItem.Dispose();
+            m_sep.Dispose();
         }
     }
 }
