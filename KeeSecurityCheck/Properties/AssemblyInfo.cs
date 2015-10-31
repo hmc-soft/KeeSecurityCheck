@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("KeeSecurityCheck")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Check your passwords to ensure they meet industry best practices. Check out our site at http://www.hmc-soft.com.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("HMC-soft")]
 [assembly: AssemblyProduct("KeePass Plugin")]

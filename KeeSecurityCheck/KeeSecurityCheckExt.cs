@@ -13,6 +13,7 @@ namespace KeeSecurityCheck
         private IPluginHost m_host = null;
         private ToolStripSeparator m_sep = null;
         private ToolStripMenuItem m_menuItem = null;
+        private SecurityCheckForm m_form = null;
 
         public override bool Initialize(IPluginHost host)
         {
@@ -32,6 +33,11 @@ namespace KeeSecurityCheck
 
         public void showSecurityCheckDialog(object sender, EventArgs e)
         {
+            if(m_form == null)
+            {
+                m_form = new SecurityCheckForm(m_host);
+            }
+            m_form.Show();
             return;
         }
 
