@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
-using KeePass.Plugins;
+﻿using KeePass.Plugins;
 using KeePassLib;
 using KeePassLib.Collections;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace KeeSecurityCheck
 {
@@ -27,7 +27,7 @@ namespace KeeSecurityCheck
             var checkComp = checkComplexity.Checked;
             var comp = (PasswordScore)complexitySlider.Value;
 
-            if(!checkDups && !checkLen && !checkComp)
+            if (!checkDups && !checkLen && !checkComp)
             {
                 MessageBox.Show("You must select at least one criteria to check.", "Error");
                 return;
@@ -73,11 +73,11 @@ namespace KeeSecurityCheck
                 foreach (var entry in entries)
                 {
                     string pass = entry.Strings.Get(PwDefs.PasswordField).ReadString();
-                    if(pass.Equals(""))
+                    if (pass.Equals(""))
                     {
                         continue;
                     }
-                    if(checkDups)
+                    if (checkDups)
                     {
                         if (results.ContainsKey(pass))
                         {
@@ -86,42 +86,55 @@ namespace KeeSecurityCheck
                         else
                         {
                             List<string> list = new List<string>();
-                            list.Add(entry.Strings.Get(PwDefs.TitleField).ReadString());
+                            var xx = entry.Strings.Get(PwDefs.TitleField);
+                            if (xx != null)
+                            {
+                                list.Add(xx.ReadString());
+                            }
+                            else
+                            {
+                                var urlxx = entry.Strings.Get(PwDefs.UrlField);
+                                if (urlxx != null)
+                                {
+                                    list.Add(urlxx.ReadString());
+                                }
+                                else
+                                {
+                                    list.Add(entry.ToString());
+                                }
+                            }
                             results.Add(pass, list);
                         }
                     }
-                    if(checkLen)
+                    if (checkLen)
                     {
-                        if(pass.Length < lenToCheck)
+                        if (pass.Length < lenToCheck)
                         {
                             shortPasses.Add(entry.Strings.Get(PwDefs.TitleField).ReadString() + " (" + pass.Length + ")");
                         }
                     }
 
-                    if(checkComp)
+                    if (checkComp)
                     {
                         var tcomp = PasswordAdvisor.CheckStrength(pass);
                         if (tcomp < comp)
                         {
-                            simplePasses.Add(entry.Strings.Get(PwDefs.TitleField).ReadString() + " (" + Enum.GetName(typeof(PasswordScore), tcomp) + ")" );
+                            simplePasses.Add(entry.Strings.Get(PwDefs.TitleField).ReadString() + " (" + Enum.GetName(typeof(PasswordScore), tcomp) + ")");
                         }
                     }
-                    
                 }
-
 
                 checkResultsView.BeginUpdate();
 
                 TreeNodeCollection nodes = checkResultsView.Nodes;
 
                 checkResultsView.Nodes.Clear();
-                
-                if(checkDups)
+
+                if (checkDups)
                 {
                     int dupPass = 1;
                     foreach (KeyValuePair<string, List<string>> result in results)
                     {
-
                         if (result.Value.Count > 1)
                         {
                             List<TreeNode> children = new List<TreeNode>();
@@ -129,20 +142,19 @@ namespace KeeSecurityCheck
                             {
                                 children.Add(new TreeNode(title));
                             }
-                            TreeNode node = new TreeNode("Duplicated Password #" + dupPass + " (" + children.Count + ")", children.ToArray());
+                            TreeNode node = new TreeNode(string.Format("Duplicated Password [{0}] ({1})", result.Key, children.Count), children.ToArray());
                             nodes.Add(node);
                             dupPass++;
                         }
-
                     }
                 }
 
                 if (checkLen)
                 {
-                    if(shortPasses.Count > 0)
+                    if (shortPasses.Count > 0)
                     {
                         List<TreeNode> children = new List<TreeNode>();
-                        foreach(var title in shortPasses)
+                        foreach (var title in shortPasses)
                         {
                             children.Add(new TreeNode(title));
                         }
@@ -171,10 +183,8 @@ namespace KeeSecurityCheck
             }
             catch (NullReferenceException nre)
             {
-                var st = new StackTrace(nre, true);
-                var frame = st.GetFrame(0);
-                MessageBox.Show(nre.StackTrace.ToString() + frame.GetFileLineNumber());
-                
+                MessageBox.Show(string.Format("I tried to read a null value.\n{0}", nre.StackTrace));
+                throw;
             }
             runCheckButton.Enabled = true;
             checkDuplicates.Enabled = true;
@@ -183,8 +193,6 @@ namespace KeeSecurityCheck
             checkComplexity.Enabled = true;
             complexitySlider.Enabled = true;
         }
-
-       
 
         private void button1_Click(object sender, EventArgs e)
         {
